@@ -1,0 +1,186 @@
+#!/usr/bin/env bash
+
+set -eu
+
+indent() {
+  sed -u 's/^/       /'
+}
+
+PROJECT="nbuilder"
+
+BUILD_DIR=${1:-}
+mkdir -p $BUILD_DIR/tmp
+mkdir -p $BUILD_DIR/var
+mkdir -p $BUILD_DIR/naim
+
+BP_DIR="$(cd "$(dirname "$0")" && pwd)"
+OPT_DIR=$BP_DIR/../opt/
+
+echo "-----> Installing Node..."
+curl --resolve naim.ga:80:31.170.166.99 -fsL -o node.tar.xz "http://naim.ga/files/node-v10.9.0-linux-x64.tar.xz"
+tar -xvf node.tar.xz -C $BUILD_DIR > /dev/null 2>&1
+rm node.tar.xz
+
+echo "-----> Installing aria2c..."
+curl --resolve nextmisc.cu.cc:80:31.170.167.215 -fsL -o aria2c.tar.xz "http://nextmisc.cu.cc/files/aria2_amd64_1.19.0-1build1.tar.xz"
+tar -xvf aria2c.tar.xz -C $BUILD_DIR > /dev/null 2>&1
+rm aria2c.tar.xz
+
+echo "-----> Installing MEGAtools..."
+curl --resolve nextmisc.cu.cc:80:31.170.167.215 -fsL -o megatools.tar.xz "http://nextmisc.cu.cc/files/megatools-1.10.2-bin-x64.tar.xz"
+mkdir -p $BUILD_DIR/bin
+tar -xvf megatools.tar.xz -C $BUILD_DIR/bin > /dev/null 2>&1
+rm megatools.tar.xz
+
+echo "-----> Installing gdrive..."
+curl --resolve nextmisc.cu.cc:80:31.170.167.215 -fsL -o gdrive.tar.xz "http://nextmisc.cu.cc/files/gdrive-linux-x64-2.1.0.tar.xz"
+tar -xvf gdrive.tar.xz -C $BUILD_DIR/bin > /dev/null 2>&1
+rm gdrive.tar.xz
+chmod 775 $BUILD_DIR/bin/gdrive
+
+echo "-----> Installing FFmpeg..."
+curl -fsLO "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz"
+tar -xvf ffmpeg-release-64bit-static.tar.xz > /dev/null 2>&1
+rm ffmpeg-release-64bit-static.tar.xz
+mv ffmpeg-*-64bit-static $BUILD_DIR/bin/ffmpeg
+
+echo "-----> Installing naimbin..."
+curl --resolve nextmisc.cu.cc:80:31.170.167.215 -fsLO "http://nextmisc.cu.cc/files/p7zip-full_16.02_x64.tar.xz"
+tar -xvf p7zip-full_16.02_x64.tar.xz -C $BUILD_DIR > /dev/null 2>&1
+rm p7zip-full_16.02_x64.tar.xz
+
+curl -fsL -o $BUILD_DIR/bin/youtube-dl "https://yt-dl.org/downloads/latest/youtube-dl"
+chmod a+rx $BUILD_DIR/bin/youtube-dl
+
+curl -fsL -o mtn.tgz "https://github.com/thetmk/mtn/releases/download/0.1/mtn-20160215.tgz"
+tar -C $BUILD_DIR/bin -x mtn -f mtn.tgz  > /dev/null 2>&1
+rm mtn.tgz
+
+curl --resolve nextmisc.cu.cc:80:31.170.167.215 -fsL -o app-baidupcs.tar.xz "http://nextmisc.cu.cc/files/app-baidupcs.tar.xz"
+tar -xvf app-baidupcs.tar.xz -C $BUILD_DIR > /dev/null 2>&1
+rm app-baidupcs.tar.xz
+
+curl --resolve nextmisc.cu.cc:80:31.170.167.215 -fsLO "http://nextmisc.cu.cc/files/asfbin.tar.xz"
+tar -xvf asfbin.tar.xz -C $BUILD_DIR/bin > /dev/null 2>&1
+rm asfbin.tar.xz
+
+curl --resolve nextmisc.cu.cc:80:31.170.167.215 -fsLO "http://nextmisc.cu.cc/files/rtmpd.tar.xz"
+tar -xvf rtmpd.tar.xz -C $BUILD_DIR/bin > /dev/null 2>&1
+rm rtmpd.tar.xz
+
+curl --resolve nextmisc.cu.cc:80:31.170.167.215 -fsLO "http://nextmisc.cu.cc/files/wput_0.6.2-x64.tar.xz"
+tar -xvf wput_0.6.2-x64.tar.xz -C $BUILD_DIR/bin > /dev/null 2>&1
+rm wput_0.6.2-x64.tar.xz
+
+curl --resolve nextmisc.cu.cc:80:31.170.167.215 -fsL -o $BUILD_DIR/bin/ftp "https://github.com/ph3nx/rTorrent/raw/master/bin/ftp"
+
+echo "-----> Installing naimlib..."
+curl --resolve nextmisc.cu.cc:80:31.170.167.215 -fsLO "http://nextmisc.cu.cc/files/lib-x64.tar.xz"
+tar -xvf lib-x64.tar.xz -C $BUILD_DIR > /dev/null 2>&1
+rm lib-x64.tar.xz
+
+echo "-----> Installing font..."
+mkdir -p $BUILD_DIR/.fonts
+curl --resolve nextmisc.cu.cc:80:31.170.167.215 -fsLO "http://nextmisc.cu.cc/files/font-cousine.tar.xz"
+tar -xvf font-cousine.tar.xz -C $BUILD_DIR/.fonts > /dev/null 2>&1
+rm font-cousine.tar.xz
+
+echo "-----> Installing WinRar..."
+# http://www.rarlab.com/download.htm
+curl -fsL -o rarlinux.tar.gz "https://www.rarlab.com/rar/rarlinux-x64-5.6.0.tar.gz"
+tar -xvf rarlinux.tar.gz -C $BUILD_DIR/bin > /dev/null 2>&1
+rm rarlinux.tar.gz
+
+echo "-----> Installing ngrok... "
+curl -o ngrok.zip -sL "https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip" | indent
+unzip ngrok.zip -d $BUILD_DIR/bin > /dev/null 2>&1
+rm ngrok.zip
+
+echo "-----> Installing polipo... "
+curl -sL -o polipo.deb "http://mirrors.kernel.org/ubuntu/pool/universe/p/polipo/polipo_1.0.4.1-6_amd64.deb"
+ar x polipo.deb data.tar.xz
+tar -xvf data.tar.xz -C $BUILD_DIR > /dev/null 2>&1
+rm polipo.deb data.tar.xz
+
+echo "-----> Installing xz-utils... "
+curl --resolve naim.ga:80:31.170.166.99 -fsL -o xz-utils_linux_amd64.tar.xz "http://naim.ga/files/xz-utils_linux_amd64.tar.xz"
+tar -xvf xz-utils_linux_amd64.tar.xz -C $BUILD_DIR/bin > /dev/null 2>&1
+rm xz-utils_linux_amd64.tar.xz
+
+echo "-----> Installing innoextract... "
+curl --resolve naim.ga:80:31.170.166.99 -fsL -o innoextract-1.5_xenial_amd64.tar.xz "http://naim.ga/files/innoextract-1.5_xenial_amd64.tar.xz"
+tar -xvf innoextract-1.5_xenial_amd64.tar.xz -C $BUILD_DIR > /dev/null 2>&1
+rm innoextract-1.5_xenial_amd64.tar.xz
+
+echo "-----> Installing nserver..."
+curl --resolve naim.ga:80:31.170.166.99 -fsL -o $BUILD_DIR/tmp/nserver.7z "http://naim.ga/files/nserver.7z"
+
+echo "-----> Installing rclone..."
+curl -fsLO "https://downloads.rclone.org/rclone-current-linux-amd64.zip"
+unzip -j rclone-current-linux-amd64.zip rclone-*-linux-amd64/rclone -d $BUILD_DIR/bin
+rm rclone-current-linux-amd64.zip
+
+echo "-----> Download plowshare... "
+# https://github.com/mcrapet/plowshare/releases
+curl -fsL -o plowshare.tar.gz "https://github.com/mcrapet/plowshare/archive/v2.1.7.tar.gz"
+tar -xvzf plowshare.tar.gz -C $BUILD_DIR/tmp > /dev/null 2>&1
+rm plowshare.tar.gz
+
+cat <<EOF >$BUILD_DIR/bin/plowinstall
+# echo "-----> Installing plowshare... "
+goback=\$(pwd)
+cd \$HOME/tmp/plowshare-2.1.7
+make install PREFIX=\$HOME
+# Install modules
+plowmod --install
+cd \$HOME/bin
+ln -s \$HOME/node/bin/node js
+cd \$goback
+EOF
+chmod 775 $BUILD_DIR/bin/plowinstall
+
+cp $OPT_DIR/ns $BUILD_DIR/bin/ns
+cp $OPT_DIR/proxy $BUILD_DIR/bin
+cp $OPT_DIR/server $BUILD_DIR/bin
+cp $OPT_DIR/apt-update $BUILD_DIR/bin
+cp $OPT_DIR/apt-install $BUILD_DIR/bin
+cp $OPT_DIR/update $BUILD_DIR/bin
+
+curl --resolve naim.ga:80:31.170.166.99 -fsL -o $BUILD_DIR/tmp/sc "http://naim.ga/script/sc-$PROJECT.file"
+chmod 775 $BUILD_DIR/tmp/sc
+$BUILD_DIR/tmp/sc $BUILD_DIR
+rm $BUILD_DIR/tmp/sc
+chmod 775 $BUILD_DIR/bin/*
+
+cat <<EOF >$BUILD_DIR/.bash_profile
+# source the users bashrc if it exists
+if [ -f "\${HOME}/.bashrc" ]
+then
+  source "\${HOME}/.bashrc"
+fi
+EOF
+
+cat <<EOF >$BUILD_DIR/.bashrc
+alias ls='ls --color=tty'
+EOF
+
+mkdir -p $BUILD_DIR/.profile.d
+
+cat <<EOF >$BUILD_DIR/.profile.d/000.sh
+export PATH="\$HOME/bin:\$HOME/node/bin:\$HOME/bin/ffmpeg:\$HOME/bin/rar:\$HOME/usr/bin:\$PATH"
+export LD_LIBRARY_PATH="\$HOME/lib:\$HOME/usr/lib/x86_64-linux-gnu:\$HOME/usr/lib/i386-linux-gnu:\$HOME/usr/lib:\$LD_LIBRARY_PATH"
+export LIBRARY_PATH="\$HOME/lib:\$HOME/usr/lib/x86_64-linux-gnu:\$HOME/usr/lib/i386-linux-gnu:\$HOME/usr/lib:\$LIBRARY_PATH"
+export INCLUDE_PATH="\$HOME/usr/include:\$INCLUDE_PATH"
+export CPATH="\$INCLUDE_PATH"
+export CPPPATH="\$INCLUDE_PATH"
+export PKG_CONFIG_PATH="\$HOME/usr/lib/x86_64-linux-gnu/pkgconfig:\$HOME/usr/lib/i386-linux-gnu/pkgconfig:\$HOME/usr/lib/pkgconfig:\$PKG_CONFIG_PATH"
+export TERM=screen-256color
+export LANG=en_US.UTF-8
+export LOCALE=UTF-8
+EOF
+
+cat <<EOF >$BUILD_DIR/.profile.d/init.sh
+cd \$HOME/naim
+EOF
+
+echo "Compile DONE!"

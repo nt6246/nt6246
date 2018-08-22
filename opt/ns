@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+if ! type -p nserver > /dev/null ; then
+	echo "-----> Installing nserver... "
+	7z x -o$HOME/naim $HOME/tmp/nserver.7z
+	mv $HOME/naim/nserver/nserver $HOME/bin/nserver
+	chmod 775 $HOME/bin/nserver
+else
+	logfile=$HOME/ngrok.log
+	$HOME/bin/nserver -settingspath $HOME/naim/nserver &
+
+	# ngrok http -log stdout 8080
+	# ngrok http $port
+	ngrok http -authtoken $NGROK_API_TOKEN -log stdout --log-level debug 8080 > $logfile &
+	sleep 3
+	if [ ! -f $logfile ]; then
+		echo "File $logfile doesn't exist. "
+	else
+		echo $(cat $logfile | grep -Poz "(?s)(?<=URL\:)[^<>'\"]*?(?= )")
+	fi
+fi

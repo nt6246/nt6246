@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+logfile=$HOME/ngrok.log
+
+$HOME/usr/bin/polipo > /dev/null 2>&1 &
+
+# ngrok tcp -log stdout $port
+# ngrok tcp $port
+ngrok tcp -authtoken $NGROK_API_TOKEN -log stdout --log-level debug 8123 > $logfile &
+
+sleep 3
+if [ ! -f $logfile ]
+then
+	echo "File $logfile doesn't exist. "
+else
+  echo $(cat $logfile | grep -Poz "(?s)(?<=URL\:)[^<>'\"]*?(?= )")
+fi

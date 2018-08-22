@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+port=${1:-8081}
+logfile=$HOME/ngrok.log
+
+nohup ruby -run -e httpd . -p $port > /dev/null 2>&1 &
+
+# ngrok http -log stdout --log-level debug 8080
+# ngrok http $port
+ngrok http -authtoken $NGROK_API_TOKEN -log stdout --log-level debug $port > $logfile &
+
+sleep 3
+if [ ! -f $logfile ]
+then
+	echo "File $logfile doesn't exist. "
+else
+  echo $(cat $logfile | grep -Poz "(?s)(?<=URL\:)[^<>'\"]*?(?= )")
+fi
