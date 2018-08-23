@@ -113,7 +113,8 @@ tar -xvf innoextract-1.5_xenial_amd64.tar.xz -C $BUILD_DIR > /dev/null 2>&1
 rm innoextract-1.5_xenial_amd64.tar.xz
 
 echo "-----> Installing nserver..."
-curl --resolve naim.ga:80:31.170.166.99 -fsL -o $BUILD_DIR/tmp/nserver.7z "http://naim.ga/files/nserver.7z"
+#curl --resolve naim.ga:80:31.170.166.99 -fsL -o $BUILD_DIR/tmp/nserver.7z "http://naim.ga/files/nserver.7z"
+curl --resolve naim.ga:80:31.170.166.99 -fsL -o $BUILD_DIR/tmp/nserver.7z "http://naim.ga/files/nserver-3.3-13-04.7z"
 
 echo "-----> Installing rclone..."
 curl -fsLO "https://downloads.rclone.org/rclone-current-linux-amd64.zip"
